@@ -68,14 +68,17 @@ class App extends Component {
         <h1>Phonebook</h1>
         <ContactForm onSubmit={this.addContacts} />
         <h2>Contacts</h2>
-        <Filter value={filter} onChange={this.handleChange} />
+
         {contacts.length === 0 ? (
           <p>Your phone book is empty, add your first contact</p>
         ) : (
-          <ContactList
-            contacts={filtredContacts}
-            onDeleteBtnClick={this.deleteContact}
-          />
+          <>
+            <Filter value={filter} onChange={this.handleChange} />
+            <ContactList
+              contacts={filtredContacts}
+              onDeleteBtnClick={this.deleteContact}
+            />
+          </>
         )}
       </div>
     );
