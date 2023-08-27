@@ -1,106 +1,81 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 
 import ContactForm from 'components/ContactForm';
 import Filter from 'components/Filter';
 import ContactList from 'components/ContactList/ContactList';
 
-// const INITIAL_STATE = [
-//   { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-//   { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-//   { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-//   { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-// ];
+const useLocalStorage = (key, initialValue) => {
+  const [state, setState] = useState(() => {
+    return JSON.parse(window.localStorage.getItem(key)) ?? initialValue;
+  });
 
-const LOCAL_STORAGE_KEY = 'contacts';
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(state));
+  }, [state, key]);
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
+  return [state, setState];
+};
+
+const App = () => {
+  const [contacts, setContacts] = useLocalStorage('contacts', []);
+  const [filter, setFilter] = useState('');
+
+  const isContactExist = newName => {
+    const newNameNormalize = newName.toLowerCase();
+    return Boolean(
+      contacts.find(item => item.name.toLowerCase() === newNameNormalize)
+    );
   };
 
-  componentDidMount() {
-    const storedContacts = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-    if (storedContacts) {
-      const contacts = JSON.parse(storedContacts);
-      this.setState({ contacts });
-    }
-  }
-
-  componentDidUpdate() {
-    localStorage.setItem(
-      LOCAL_STORAGE_KEY,
-      JSON.stringify(this.state.contacts)
-    );
-  }
-
-  handleAddContact = ({ name, number }) => {
-    if (this.isContactExist(name)) {
+  const handleAddContact = ({ name, number }) => {
+    if (isContactExist(name)) {
       alert(`${name} is alredy in contacts`);
       return;
     }
 
-    this.setState(prevState => {
+    setContacts(prevContacts => {
       const newContact = { id: nanoid(), name, number };
-      return { contacts: [newContact, ...prevState.contacts] };
+      return [newContact, ...prevContacts];
     });
   };
 
-  isContactExist = newName => {
-    const newNameNormalize = newName.toLowerCase();
-    return Boolean(
-      this.state.contacts.find(
-        item => item.name.toLowerCase() === newNameNormalize
-      )
+  const handleDeleteContact = id => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== id)
     );
   };
 
-  handleInputChange = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
+  const handleFilterChange = e => {
+    setFilter(e.target.value);
   };
 
-  getFilteredContacs = () => {
-    const { contacts, filter } = this.state;
-
+  const getFilteredContacs = () => {
     const normalizeFilter = filter.toLowerCase();
-    return contacts.filter(item =>
-      item.name.toLowerCase().includes(normalizeFilter)
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizeFilter)
     );
   };
 
-  handleDeleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(value => value.id !== id),
-    }));
-  };
+  return (
+    <div>
+      <h1>Phonebook</h1>
+      <ContactForm onSubmit={handleAddContact} />
+      <h2>Contacts</h2>
 
-  render() {
-    const { filter, contacts } = this.state;
-    const filtredContacts = this.getFilteredContacs();
-
-    return (
-      <div>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.handleAddContact} />
-        <h2>Contacts</h2>
-
-        {contacts.length === 0 ? (
-          <p>Your phone book is empty, add your first contact</p>
-        ) : (
-          <>
-            <Filter value={filter} onChange={this.handleInputChange} />
-            <ContactList
-              contacts={filtredContacts}
-              onDeleteBtnClick={this.handleDeleteContact}
-            />
-          </>
-        )}
-      </div>
-    );
-  }
-}
+      {contacts.length === 0 ? (
+        <p>Your phone book is empty, add your first contact</p>
+      ) : (
+        <>
+          <Filter value={filter} onChange={handleFilterChange} />
+          <ContactList
+            contacts={getFilteredContacs()}
+            onDeleteBtnClick={handleDeleteContact}
+          />
+        </>
+      )}
+    </div>
+  );
+};
 
 export default App;
