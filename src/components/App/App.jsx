@@ -62,7 +62,6 @@ const App = () => {
       <h1>Phonebook</h1>
       <ContactForm onSubmit={handleAddContact} />
       <h2>Contacts</h2>
-
       {contacts.length === 0 ? (
         <p>Your phone book is empty, add your first contact</p>
       ) : (
