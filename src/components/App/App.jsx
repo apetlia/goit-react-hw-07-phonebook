@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import ContactForm from 'components/ContactForm';
 import Filter from 'components/Filter';
 import ContactList from 'components/ContactList/ContactList';
-
-const useLocalStorage = (key, initialValue) => {
-  const [state, setState] = useState(() => {
-    return JSON.parse(window.localStorage.getItem(key)) ?? initialValue;
-  });
-
-  useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(state));
-  }, [state, key]);
-
-  return [state, setState];
-};
+import { deleteContact, setContact, setFilter } from 'redux/contactSlice';
+import { getContacts, getFilter } from 'redux/selectors';
 
 const App = () => {
-  const [contacts, setContacts] = useLocalStorage('contacts', []);
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
 
   const isContactExist = newName => {
     const newNameNormalize = newName.toLowerCase();
@@ -30,27 +21,22 @@ const App = () => {
 
   const handleAddContact = ({ name, number }) => {
     if (isContactExist(name)) {
-      alert(`${name} is alredy in contacts`);
+      alert(`${name} is already in contacts`);
       return;
     }
 
-    setContacts(prevContacts => {
-      const newContact = { id: nanoid(), name, number };
-      return [newContact, ...prevContacts];
-    });
+    dispatch(setContact(name, number));
   };
 
   const handleDeleteContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+    dispatch(deleteContact({ id }));
   };
 
   const handleFilterChange = e => {
-    setFilter(e.target.value);
+    dispatch(setFilter({ filter: e.target.value }));
   };
 
-  const getFilteredContacs = () => {
+  const getFilteredContacts = () => {
     const normalizeFilter = filter.toLowerCase();
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizeFilter)
@@ -68,7 +54,7 @@ const App = () => {
         <>
           <Filter value={filter} onChange={handleFilterChange} />
           <ContactList
-            contacts={getFilteredContacs()}
+            contacts={getFilteredContacts()}
             onDeleteBtnClick={handleDeleteContact}
           />
         </>
