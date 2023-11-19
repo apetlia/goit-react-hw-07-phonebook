@@ -18,12 +18,12 @@ const nameRegex = /^[a-zA-Zа-яА-Я '-]*$/;
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().matches(nameRegex, 'Invalid name').required('Required'),
-  number: Yup.string()
+  phone: Yup.string()
     .matches(phoneRegex, 'Invalid phone number')
     .required('Required'),
 });
 
-const initialValues = { name: '', number: '' };
+const initialValues = { name: '', phone: '' };
 
 const ContactForm = ({ onSubmit }) => {
   const handleSubmit = (values, { resetForm }) => {
@@ -51,10 +51,10 @@ const ContactForm = ({ onSubmit }) => {
           Number
           <FieldStyled
             type="tel"
-            name="number"
+            name="phone"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           />
-          <ErrorMessageStyled name="number" component="div" />
+          <ErrorMessageStyled name="phone" component="div" />
         </Label>
         <Button type="submit">Add contact</Button>
       </FormStyled>

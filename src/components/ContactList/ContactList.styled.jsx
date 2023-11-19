@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 export const List = styled.ul`
   padding-left: 30px;
-  width: 350px;
+  width: 500px;
   display: flex;
   flex-direction: column;
   gap: 15px;

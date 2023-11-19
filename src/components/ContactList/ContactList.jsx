@@ -5,10 +5,10 @@ import PropTypes from 'prop-types';
 const ContactList = ({ contacts, onDeleteBtnClick }) => {
   return (
     <List>
-      {contacts.map(({ name, id, number }) => {
+      {contacts.map(({ name, id, phone }) => {
         return (
           <Li key={id}>
-            {name}: {number}
+            {name}: {phone}
             <Button type="button" onClick={() => onDeleteBtnClick(id)}>
               Delete
             </Button>
@@ -24,7 +24,7 @@ ContactList.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       id: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
+      phone: PropTypes.string.isRequired,
     })
   ),
   onDeleteBtnClick: PropTypes.func.isRequired,
